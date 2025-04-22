@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nestjs-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nestjs
+  template:
+    metadata:
+      labels:
+        app: nestjs
+    spec:
+      containers:
+      - name: app
+        image: ghcr.io/ВАШ_USERNAME/РЕПО:latest  # Будет заменен в workflow
+        ports:
+        - containerPort: 3000
+        readinessProbe:
+          httpGet:
+            path: /items
+            port: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nestjs-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: nestjs
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
