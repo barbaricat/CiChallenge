@@ -8,6 +8,10 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [ linux/amd64, linux/arm64 ]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -16,6 +20,7 @@ jobs:
 
       # эмулятор арм процессора для образа под него
       - name: Set up QEMU
+        if: matrix.platform == 'linux/arm64'
         uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
@@ -26,17 +31,19 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.DEPLOY_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
-          platforms: linux/amd64,linux/arm64  # две сборки замедляют пайп
-          push: ${{ github.event_name != 'pull_request' }}
+          platforms: ${{ matrix.platform }} # две сборки парралельно
+          push: true
+           # Чтобы не было лишнего мусора используем ${{ github.event_name != 'pull_request' }}
+           # Но мы ставим в приоритет скорость, потому True
           tags: |
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ github.sha }}
-         # Юзаю Билдкит для ускорения
-          cache-from: type=gha
+
+          cache-from: type=gha # Юзаю Билдкит для ускорения
           cache-to: type=gha,mode=max
