@@ -41,7 +41,7 @@ jobs:
           push: true
           # Чтобы не было лишнего мусора используем ${{ github.event_name != 'pull_request' }}, но Тру для скорости.
           tags: |
-            ghcr.io/${{ github.repository }}:${{ github.sha }}-${{ matrix.platform }}
+            ghcr.io/${{ github.repository }}:${{ github.sha }}-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
             ${{ matrix.platform == 'linux/amd64' && format('ghcr.io/{0}:latest', github.repository) || '' }}
           # не использовал мердж манифест во благо скорости (лэйтест только амд);
           # || - для false условия, format для разрешения +
