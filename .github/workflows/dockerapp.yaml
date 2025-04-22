@@ -42,8 +42,12 @@ jobs:
            # Чтобы не было лишнего мусора используем ${{ github.event_name != 'pull_request' }}
            # Но мы ставим в приоритет скорость, потому True
           tags: |
-            ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:${{ github.sha }}-${{ matrix.platform }}
+            ${{ matrix.platform == 'linux/amd64' && 'ghcr.io/' + github.repository + ':latest' || '' }}
+          # не использовал мердж манифест во благо скорости (лэйтест только амд);
+          # || - для false условия
 
           cache-from: type=gha # Юзаю Билдкит для ускорения
           cache-to: type=gha,mode=max
+
+
