@@ -39,13 +39,12 @@ jobs:
           context: .
           platforms: ${{ matrix.platform }} # две сборки парралельно
           push: true
-           # Чтобы не было лишнего мусора используем ${{ github.event_name != 'pull_request' }}
-           # Но мы ставим в приоритет скорость, потому True
+          # Чтобы не было лишнего мусора используем ${{ github.event_name != 'pull_request' }}, но Тру для скорости.
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}-${{ matrix.platform }}
-            ${{ matrix.platform == 'linux/amd64' && 'ghcr.io/' + github.repository + ':latest' || '' }}
+            ${{ matrix.platform == 'linux/amd64' && format('ghcr.io/{0}:latest', github.repository) || '' }}
           # не использовал мердж манифест во благо скорости (лэйтест только амд);
-          # || - для false условия
+          # || - для false условия, format для разрешения +
 
           cache-from: type=gha # Юзаю Билдкит для ускорения
           cache-to: type=gha,mode=max
